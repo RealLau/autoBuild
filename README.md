@@ -11,7 +11,7 @@ example Settings:
 2. apk源码SVN本地根目录: C:\SVNAndroidSourceCode3.1;
 3. 生成apk的所在的本地目录: C:\SVNAndroidSourceCode3.1\cyb\build\outputs\apk;
 4. apk生成后在本地哪儿提交: C:\SVNProject\testForAutomation;
-5. 生成的apk所在的SVN远端地址: https://192.168.1.10/svn/TestTM/Android待测/advertise/;
+5. 生成的apk所在的SVN远端地址: https://192.168.1.0/svn/TestTM/Android待测/advertise/;
 6. 循环任务时间: 暂时无用;
 7. 邮件服务器地址: 发送邮件用到的服务器地址;
 8. 邮件发送者账户名: xxx@123.com;
