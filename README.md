@@ -3,13 +3,13 @@ Auto update svn source code ->build apk -> submit apk->send emails to testers.
 
 Requirements:
 1. Python 3.6.2 64Bit;
-2. wxpython(download: wxPython-4.0.0a4.dev3153+ec9d660-cp36-cp36m-win_amd64.whl);
+2. wxpython(download: wxPython-4.0.0a4.dev3153+ec9d660-cp36-cp36m-win_amd64.whl, open cmd and cd to the file dir, run command: pip install wxPython-4.0.0a4.dev3153+ec9d660-cp36-cp36m-win_amd64.whl);
 3. svn(pip install svn);
 4. configparser(pip install configparser).
 
 Run:
 
-just place all 3 files together, and open cmd run command: python autoBuild.py.
+  just place all 3 files together, and open cmd run command: python autoBuild.py.
 
 example Settings:
 
