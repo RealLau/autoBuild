@@ -107,10 +107,7 @@ class Helper:
         with open("conf.ini", "w") as conf:
             config.write(conf)
             conf.close()
-# Helper.buildApk(localDir = r"C:\SVNAndroidSourceCode3.1", apkGenerateDir=r"C:\SVNAndroidSourceCode3.1\cyb\build\outputs\apk")
-# Helper.sendEmail( toList="liushuangshuang@hongfans.cn", fullContent="HHHHHHHH", emailserver="smtp.exmail.qq.com", emailuserName="liushuangshuang@hongfans.cn", emailpwd="Shuang142693")
-# Helper.copyApkAndRename(sourceFileFullPath=os.path.join(r"C:\SVNAndroidSourceCode3.1", "cyb","build","outputs","apk","cyb-release.apk"), release=True, localSvnApkDir=r"C:\SVNProject\testForAutomation", localDir=r"C:\SVNAndroidSourceCode3.1", remoteDir="https://192.168.1.10/svn/rearview3.1/Rearview3.1/trunk")
-# Helper.readAndSetPreSettings()
+            
 def runTask():
     pars = sys.argv[1:]
     release, sourceCodeRemoteField, localDir, apkGenerateDir, localSvnApkDir, apkRemoteField, emailServerField,emailUserNameField,emailPwdField,emailReceiversField,emailPrefixField, updadeSourceCode, buildApk, submitApk, sendEmail = pars
