@@ -15,7 +15,7 @@ class MyForm(wx.Frame):
         self.radio1 = wx.RadioButton(self.panel, -1, "debug",pos=(80,20))  
         self.radio2 = wx.RadioButton(self.panel, -1, "release",pos=(160,20))  
 
-        self.sourceCodeRemoteField = wx.TextCtrl(self.panel, 2, "https://192.168.1.10/svn/rearview3.1/Rearview3.1/trunk", pos=(20, 60), size=(251, 28))
+        self.sourceCodeRemoteField = wx.TextCtrl(self.panel, 2, "", pos=(20, 60), size=(251, 28))
         self.sourceCodeRemoteText = wx.StaticText(self.panel, 2, "apk源码SVN远端地址", pos=(300, 60))
         self.sourceCodeRemoteField.SetToolTip("示例: https://192.168.1.10/svn/rearview3.1/Rearview3.1/trunk")
         
@@ -34,7 +34,7 @@ class MyForm(wx.Frame):
         self.Bind(wx.EVT_BUTTON, lambda event: self.setDirValue(event, self.apkCommitDirBtn.GetLabel()), self.apkCommitDirBtn)
         self.apkCommitDirField.SetToolTip(r"示例: C:\SVNProject\testForAutomation")
         
-        self.apkRemoteField = wx.TextCtrl(self.panel, -1, r"https://192.168.1.10/svn/TestTM/Android待测/advertise/", pos=(20, 220), size=(251, 28))
+        self.apkRemoteField = wx.TextCtrl(self.panel, -1, "", pos=(20, 220), size=(251, 28))
         self.apkRemoteText = wx.StaticText(self.panel, -1, "生成的apk所在的SVN远端地址", pos=(300, 230))
         self.apkRemoteField.SetToolTip("示例(不要忘记最后的斜杠): https://192.168.1.10/svn/TestTM/Android待测/advertise/")
         
