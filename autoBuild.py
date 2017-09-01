@@ -178,7 +178,10 @@ class MyForm(wx.Frame):
         pi = p.stdout.readlines()
         for line in pi:
             self.logCtrl.AppendText(line)  
-    
+        
+        
+        self.manuallyRunBtn.Enable(enable=True)
+        
     def manuallyRun(self, evt):
         self.updateSourceCodeNewV = self.checkboxUpdateApkSourceCode.GetValue()
         self.buildAPKNewV = self.checkboxBuildApk.GetValue()
@@ -208,9 +211,10 @@ class MyForm(wx.Frame):
                 if isinstance(i, bool):
                     i=str(i)
                 cmd+=" "+i
-            print(self.buildAPKNewV)
             self.p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
             threading._start_new_thread(self.updateLog, (self.p,))
+            self.manuallyRunBtn.Enable(enable=False)
+            
             
     def updateStatus(self, msg):
         self.SetStatusText(msg, number=0)
