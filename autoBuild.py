@@ -1,21 +1,19 @@
 import wx
 from helper import Helper
-import time
 import wx.lib.masked as masked
-import os
 import subprocess 
 import threading
 
 class MyForm(wx.Frame):
 
     def __init__(self):
-        wx.Frame.__init__(self, None, wx.ID_ANY, "autoBuild", size=(1000, 760))
+        wx.Frame.__init__(self, None, wx.ID_ANY, "autoBuild", size=(1000, 960))
         self.panel = wx.Panel(self) 
         self.versionControl = wx.StaticText(self.panel, -1, "版本控制:", pos=(20,20)) 
         self.radio1 = wx.RadioButton(self.panel, -1, "debug",pos=(80,20))  
         self.radio2 = wx.RadioButton(self.panel, -1, "release",pos=(160,20))  
 
-        self.sourceCodeRemoteField = wx.TextCtrl(self.panel, 2, "", pos=(20, 60), size=(251, 28))
+        self.sourceCodeRemoteField = wx.TextCtrl(self.panel, 2, "https://192.168.1.10/svn/rearview3.1/Rearview3.1/trunk", pos=(20, 60), size=(251, 28))
         self.sourceCodeRemoteText = wx.StaticText(self.panel, 2, "apk源码SVN远端地址", pos=(300, 60))
         self.sourceCodeRemoteField.SetToolTip("示例: https://192.168.1.10/svn/rearview3.1/Rearview3.1/trunk")
         
@@ -34,7 +32,7 @@ class MyForm(wx.Frame):
         self.Bind(wx.EVT_BUTTON, lambda event: self.setDirValue(event, self.apkCommitDirBtn.GetLabel()), self.apkCommitDirBtn)
         self.apkCommitDirField.SetToolTip(r"示例: C:\SVNProject\testForAutomation")
         
-        self.apkRemoteField = wx.TextCtrl(self.panel, -1, "", pos=(20, 220), size=(251, 28))
+        self.apkRemoteField = wx.TextCtrl(self.panel, -1, r"https://192.168.1.10/svn/TestTM/Android待测/advertise/", pos=(20, 220), size=(251, 28))
         self.apkRemoteText = wx.StaticText(self.panel, -1, "生成的apk所在的SVN远端地址", pos=(300, 230))
         self.apkRemoteField.SetToolTip("示例(不要忘记最后的斜杠): https://192.168.1.10/svn/TestTM/Android待测/advertise/")
         
@@ -58,24 +56,24 @@ class MyForm(wx.Frame):
         self.emailReceiversText = wx.StaticText(self.panel, -1, "邮件接收者\n(逗号分割):", pos=(20, 460))
         self.emailReceiversField = wx.TextCtrl(self.panel, -1, "", pos=(130, 460), size=(280,50), style=wx.TE_PASSWORD|wx.TE_MULTILINE)
         
-        self.emailPrefixText = wx.StaticText(self.panel, -1, "邮件正文前缀:", pos=(20, 540))
-        self.emailPrefixField = wx.TextCtrl(self.panel, -1, "Ｄear All:\n\t本次主要更新内容为:xxxxx.\n\t地址如下:", pos=(130, 540), size=(280,50), style=wx.TE_PASSWORD|wx.TE_MULTILINE)
+        self.emailCCText = wx.StaticText(self.panel, -1, "邮件抄送给\n(逗号分割):", pos=(20, 540))
+        self.emailCCField = wx.TextCtrl(self.panel, -1, "", pos=(130, 540), size=(280,50), style=wx.TE_PASSWORD|wx.TE_MULTILINE)
         
-        self.logCtrl =  wx.TextCtrl(self.panel, -1, "", pos=(500, 20), size=(450,650), style=wx.TE_PASSWORD|wx.TE_MULTILINE)
+        self.emailPrefixText = wx.StaticText(self.panel, -1, "邮件正文前缀:", pos=(20, 620))
+        self.emailPrefixField = wx.TextCtrl(self.panel, -1, "Ｄear All:\n\t本次主要更新内容为:xxxxx.\n\t地址如下:", pos=(130, 620), size=(280,150), style=wx.TE_PASSWORD|wx.TE_MULTILINE)
         
-        self.stepConf = wx.StaticText(self.panel, -1, "流程定制:", pos=(20, 600))
-        self.checkboxUpdateApkSourceCode = wx.CheckBox(self.panel, 1, "更新源码",pos=(130, 600))
-        self.checkboxBuildApk = wx.CheckBox(self.panel, 2, "编译生成APK",pos=(210, 600))
-        self.checkboxSubmitApk = wx.CheckBox(self.panel, 3, "提交APK",pos=(310, 600))
-        self.checkboxSendEmail = wx.CheckBox(self.panel, 4, "发送提醒邮件",pos=(390, 600))
-        self.checkboxBuildApk.Bind(wx.EVT_CHECKBOX, self.combineCheck)
-        self.checkboxSubmitApk.Bind(wx.EVT_CHECKBOX, self.combineCheck)
-        self.checkboxSendEmail.Bind(wx.EVT_CHECKBOX, self.combineCheck)
+        self.logCtrl =  wx.TextCtrl(self.panel, -1, "", pos=(500, 20), size=(450,850), style=wx.TE_PASSWORD|wx.TE_MULTILINE)
         
-        self.saveConfBtn = wx.Button(self.panel, 7, "保存配置", pos=(20, 640))
+        self.stepConf = wx.StaticText(self.panel, -1, "流程定制:", pos=(20, 800))
+        self.checkboxUpdateApkSourceCode = wx.CheckBox(self.panel, 1, "更新源码",pos=(130, 800))
+        self.checkboxBuildApk = wx.CheckBox(self.panel, 2, "编译生成APK",pos=(210, 800))
+        self.checkboxSubmitApk = wx.CheckBox(self.panel, 3, "提交APK",pos=(310, 800))
+        self.checkboxSendEmail = wx.CheckBox(self.panel, 4, "发送提醒邮件",pos=(390, 800))
+        
+        self.saveConfBtn = wx.Button(self.panel, 7, "保存配置", pos=(20, 840))
         self.saveConfBtn.Bind(wx.EVT_BUTTON, self.saveNewSettings)
         
-        self.manuallyRunBtn = wx.Button(self.panel, 9, "手动执行(仅一次)", pos=(360, 640))
+        self.manuallyRunBtn = wx.Button(self.panel, 9, "手动执行(仅一次)", pos=(360, 840))
         self.manuallyRunBtn.Bind(wx.EVT_BUTTON, self.manuallyRun)
         
         self.statusbar = self.CreateStatusBar(number=1, style=wx.STB_DEFAULT_STYLE, id=0)
@@ -99,7 +97,7 @@ class MyForm(wx.Frame):
         emailUsernameV = self.conf["emailSettings"]["emailUsername"]
         emailPwdV = self.conf["emailSettings"]["emailPwd"]
         toListV = self.conf["emailSettings"]["toList"]
-        emailPrefixV = self.conf["emailSettings"]["emailPrefix"]
+        ccListV = self.conf["emailSettings"]["emailCC"]
         loopTime = self.conf["loopTime"]["loopTime"]
         self.apkGeneratedDirField.SetValue(apkGenerateDirV if apkGenerateDirV!=None else "")
         self.apkCommitDirField.SetValue(apkCommitDirFieldV if apkCommitDirFieldV!=None else "")
@@ -108,7 +106,10 @@ class MyForm(wx.Frame):
         self.emailUserNameField.SetValue(emailUsernameV if emailUsernameV!=None else "")
         self.emailPwdField.SetValue(emailPwdV if emailPwdV!=None else "")
         self.emailReceiversField.SetValue(toListV if toListV!=None else "")
-        self.emailPrefixField.SetValue(emailPrefixV if emailPrefixV!=None else "")
+        self.emailCCField.SetValue(ccListV if ccListV!=None else "")
+        with open("emailPrefix.txt", "r") as f:
+            emailPrefixField = f.read()
+            self.emailPrefixField.SetValue(emailPrefixField if emailPrefixField!=None else "")
         self.sourceCodeLocalField.SetValue(localDirV if localDirV!=None else "")
         self.timeCtrl.SetValue(loopTime if loopTime!='' else "02:00:00 AM")
         
@@ -148,8 +149,11 @@ class MyForm(wx.Frame):
         Helper.writeNewSettings("emailSettings", "emailPwd", emailPwdNewV)
         toListNewV = self.emailReceiversField.GetValue()
         Helper.writeNewSettings("emailSettings", "toList", toListNewV)
+        ccListNewV = self.emailCCField.GetValue()
+        Helper.writeNewSettings("emailSettings", "emailcc", ccListNewV)        
         emailPrefixNewV = self.emailPrefixField.GetValue()
-        Helper.writeNewSettings("emailSettings", "emailPrefix", emailPrefixNewV)
+        with open("emailPrefix.txt", "w") as f:
+            f.write(emailPrefixNewV)
         loopTimeNewV = self.timeCtrl.GetValue() 
         Helper.writeNewSettings("loopTime", "loopTime", loopTimeNewV)
     
@@ -198,19 +202,22 @@ class MyForm(wx.Frame):
         emailUserNameField = self.emailUserNameField.GetValue()
         emailPwdField = self.emailPwdField.GetValue()
         emailReceiversField = self.emailReceiversField.GetValue()
-        emailPrefixField = self.emailPrefixField.GetValue()
-        
-        l = [sourceCodeRemoteField, localDir, apkGenerateDir, localSvnApkDir,apkRemoteField, timeCtrl, emailServerField,emailUserNameField,emailPwdField,emailReceiversField,emailPrefixField]
+        emailCCField = self.emailCCField.GetValue()
+        emailPrefixNewV = self.emailPrefixField.GetValue()
+        with open("emailPrefix.txt", "w") as f:
+            f.write(emailPrefixNewV)
+        l = [sourceCodeRemoteField, localDir, apkGenerateDir, localSvnApkDir,apkRemoteField, timeCtrl, emailServerField,emailUserNameField,emailPwdField,emailReceiversField]
         if "" in l:
-            dlg = wx.MessageDialog(self.panel,'任一设置项均不能为空 !!!',  '☆☆☆请检查☆☆☆', wx.OK|wx.ICON_ERROR)
+            dlg = wx.MessageDialog(self.panel,'除<邮件抄送>外, 任一设置项均不能为空 !!!',  '☆☆☆请检查☆☆☆', wx.OK|wx.ICON_ERROR)
             dlg.ShowModal()
         else:
-            ps = release, sourceCodeRemoteField, localDir, apkGenerateDir, localSvnApkDir,apkRemoteField, emailServerField,emailUserNameField,emailPwdField,emailReceiversField,emailPrefixField, self.updateSourceCodeNewV, self.buildAPKNewV, self.submitapktosvnNewV, self.sendemailNewV
+            ps = [release, sourceCodeRemoteField, localDir, apkGenerateDir, localSvnApkDir,apkRemoteField, emailServerField,emailUserNameField,emailPwdField,emailReceiversField, emailCCField if emailCCField!='' else 'NONE', self.updateSourceCodeNewV, self.buildAPKNewV, self.submitapktosvnNewV, self.sendemailNewV]
             cmd = "python helper.py"
             for i in ps:
                 if isinstance(i, bool):
                     i=str(i)
                 cmd+=" "+i
+            print(cmd)
             self.p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
             threading._start_new_thread(self.updateLog, (self.p,))
             self.manuallyRunBtn.Enable(enable=False)
