@@ -44,7 +44,7 @@ class MyForm(wx.Frame):
         self.timeCtrl.BindSpinButton( spin1 )
         
         self.emailServerText = wx.StaticText(self.panel, -1, "邮件服务器地址:", pos=(20, 340))
-        self.emailServerField = wx.TextCtrl(self.panel, -1, "smtp.exmail.qq.com", pos=(130, 340), size=(280, 28))
+        self.emailServerField = wx.TextCtrl(self.panel, -1, "", pos=(130, 340), size=(280, 28))
         
         
         self.emailUserNameText = wx.StaticText(self.panel, -1, "邮件发送者账户名:", pos=(20, 380))
