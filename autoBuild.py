@@ -2,7 +2,32 @@ import wx
 from helper import Helper
 import wx.lib.masked as masked
 import subprocess 
-import threading
+from threading import Thread
+from wx.lib.pubsub import pub
+
+
+class TestThread(Thread):
+    """Test Worker Thread Class."""
+
+    # ----------------------------------------------------------------------
+    def __init__(self, cmd):
+        """Init Worker Thread Class."""
+        Thread.__init__(self)
+        self.cmd = cmd
+        self.start()  # start the thread
+
+    def execute_task(self):
+        with open("log.txt", "w") as log_f:
+            p = subprocess.Popen(self.cmd, shell=True, stdout=log_f)
+            p.wait()
+    # ----------------------------------------------------------------------
+    def run(self):
+        """Run Worker Thread."""
+        # This is the code executing in the new thread.
+        self.execute_task()
+        with open("log.txt", "r", encoding="utf-8") as log_f:
+            wx.CallAfter(pub.sendMessage, "update", msg=log_f.read())
+
 
 class MyForm(wx.Frame):
 
@@ -44,8 +69,7 @@ class MyForm(wx.Frame):
         self.timeCtrl.BindSpinButton( spin1 )
         
         self.emailServerText = wx.StaticText(self.panel, -1, "邮件服务器地址:", pos=(20, 340))
-        self.emailServerField = wx.TextCtrl(self.panel, -1, "", pos=(130, 340), size=(280, 28))
-        
+        self.emailServerField = wx.TextCtrl(self.panel, -1, "smtp.exmail.qq.com", pos=(130, 340), size=(280, 28))
         
         self.emailUserNameText = wx.StaticText(self.panel, -1, "邮件发送者账户名:", pos=(20, 380))
         self.emailUserNameField = wx.TextCtrl(self.panel, -1, "", pos=(130, 380), size=(280,28))
@@ -76,8 +100,8 @@ class MyForm(wx.Frame):
         self.manuallyRunBtn = wx.Button(self.panel, 9, "手动执行(仅一次)", pos=(360, 840))
         self.manuallyRunBtn.Bind(wx.EVT_BUTTON, self.manuallyRun)
         
-        self.statusbar = self.CreateStatusBar(number=1, style=wx.STB_DEFAULT_STYLE, id=0)
-        self.statusbar.SetStatusText("autoBuild V1-20170831")
+        self.statusBar = self.CreateStatusBar(number=1, style=wx.STB_DEFAULT_STYLE, id=0)
+        self.statusBar.SetStatusText("autoBuild V1-20170908")
         self.t = None
         self.Bind(wx.EVT_CLOSE,self.OnClose)
         
@@ -107,13 +131,14 @@ class MyForm(wx.Frame):
         self.emailPwdField.SetValue(emailPwdV if emailPwdV!=None else "")
         self.emailReceiversField.SetValue(toListV if toListV!=None else "")
         self.emailCCField.SetValue(ccListV if ccListV!=None else "")
-        with open("emailPrefix.txt", "r") as f:
+        with open("emailPrefix.txt", "rb") as f:
             emailPrefixField = f.read()
             self.emailPrefixField.SetValue(emailPrefixField if emailPrefixField!=None else "")
         self.sourceCodeLocalField.SetValue(localDirV if localDirV!=None else "")
         self.timeCtrl.SetValue(loopTime if loopTime!='' else "02:00:00 AM")
-        
-    
+        pub.subscribe(self.updateLog, "update")
+
+
     def combineCheck(self, evt):
         evtId = evt.GetId()
         if evt.IsChecked():
@@ -152,13 +177,13 @@ class MyForm(wx.Frame):
         ccListNewV = self.emailCCField.GetValue()
         Helper.writeNewSettings("emailSettings", "emailcc", ccListNewV)        
         emailPrefixNewV = self.emailPrefixField.GetValue()
-        with open("emailPrefix.txt", "w") as f:
-            f.write(emailPrefixNewV)
+        with open("emailPrefix.txt", "wb") as f:
+            f.write(emailPrefixNewV.encode(encoding="utf-8"))
         loopTimeNewV = self.timeCtrl.GetValue() 
         Helper.writeNewSettings("loopTime", "loopTime", loopTimeNewV)
     
     def OnClose(self, evt):
-        ret = wx.MessageBox('如果有自动运行中的任务, 它将会被强制关闭. 仍然确认退出吗?',  '☆☆☆确认☆☆☆', wx.OK|wx.CANCEL)
+        ret = wx.MessageBox('如果有自动运行中的任务, 它可能会被强制关闭. 仍然确认退出吗?',  '☆☆☆确认☆☆☆', wx.OK|wx.CANCEL)
         if ret == wx.OK:
             if self.t:
                 self.t.flag = True
@@ -178,14 +203,10 @@ class MyForm(wx.Frame):
                         break
         dlg.Destroy()
     
-    def updateLog(self, p):
-        pi = p.stdout.readlines()
-        for line in pi:
-            self.logCtrl.AppendText(line)  
-        
-        
+    def updateLog(self, msg):
+        self.logCtrl.AppendText(msg)
         self.manuallyRunBtn.Enable(enable=True)
-        
+
     def manuallyRun(self, evt):
         self.updateSourceCodeNewV = self.checkboxUpdateApkSourceCode.GetValue()
         self.buildAPKNewV = self.checkboxBuildApk.GetValue()
@@ -204,7 +225,7 @@ class MyForm(wx.Frame):
         emailReceiversField = self.emailReceiversField.GetValue()
         emailCCField = self.emailCCField.GetValue()
         emailPrefixNewV = self.emailPrefixField.GetValue()
-        with open("emailPrefix.txt", "w") as f:
+        with open("emailPrefix.txt", "w", encoding='utf-8') as f:
             f.write(emailPrefixNewV)
         l = [sourceCodeRemoteField, localDir, apkGenerateDir, localSvnApkDir,apkRemoteField, timeCtrl, emailServerField,emailUserNameField,emailPwdField,emailReceiversField]
         if "" in l:
@@ -217,9 +238,8 @@ class MyForm(wx.Frame):
                 if isinstance(i, bool):
                     i=str(i)
                 cmd+=" "+i
-            print(cmd)
-            self.p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-            threading._start_new_thread(self.updateLog, (self.p,))
+            TestThread(cmd)
+            # threading._start_new_thread(self.updateLog, (self.p,))
             self.manuallyRunBtn.Enable(enable=False)
             
             
