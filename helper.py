@@ -10,6 +10,7 @@ import subprocess
 import shutil
 import configparser
 import sys
+import codecs
 
 class Helper:
     @classmethod
@@ -22,6 +23,7 @@ class Helper:
     def getSVNLatestVersion(self, remoteDir="https://192.168.1.10/svn/rearview3.1/Rearview3.1/trunk"):
         r = svn.remote.RemoteClient(remoteDir)
         i = r.info()
+        svnLatestVersion = i["entry#revision"]
         svnLatestVersion = i["entry#revision"]
         print(svnLatestVersion)
         return "_"+str(svnLatestVersion)
@@ -52,7 +54,6 @@ class Helper:
                 os.remove("cyb-debug.apk")
             os.chdir(localDir)
             cmd = "gradlew assembleDebug"
-        print(cmd)
         s = subprocess.Popen(cmd, shell=True)
         s.wait()
     
@@ -66,7 +67,6 @@ class Helper:
         apkV = self.getGradleAppVersion(localDir=localDir)
         timeStr = time.strftime('%Y%m%d%H%M',time.localtime(time.time()))
         desFileFullPath = os.path.join(localSvnApkDir,prefix+apkV+timeStr+self.getSVNLatestVersion(remoteDir=remoteDir)+".apk")
-        print(desFileFullPath)
         shutil.copy(sourceFileFullPath, desFileFullPath)
         return os.path.basename(desFileFullPath)
     
@@ -96,16 +96,15 @@ class Helper:
     @classmethod
     def readAndSetPreSettings(self):
         config = configparser.ConfigParser()
-        config.read("conf.ini")
+        config.read_file(codecs.open("conf.ini","r",encoding="utf-8"))
         return config
     
     @classmethod
     def writeNewSettings(self, sectionName, sectionOption, newValue):
         config = configparser.ConfigParser()
-        config.read("conf.ini")
-        print(config.sections())
+        config.read_file(codecs.open("conf.ini","r",encoding="utf-8"))
         config.set(sectionName,sectionOption, newValue)
-        with open("conf.ini", "w") as conf:
+        with codecs.open("conf.ini","w",encoding="utf-8") as conf:
             config.write(conf)
             conf.close()
 # Helper.buildApk(localDir = r"C:\SVNAndroidSourceCode3.1", apkGenerateDir=r"C:\SVNAndroidSourceCode3.1\cyb\build\outputs\apk")
@@ -114,11 +113,10 @@ class Helper:
 # Helper.readAndSetPreSettings()
 def runTask():
     pars = sys.argv[1:]
-    print(pars)
     release, sourceCodeRemoteField, localDir, apkGenerateDir, localSvnApkDir, apkRemoteField, emailServerField,emailUserNameField,emailPwdField,emailReceiversField,emailCCField, updadeSourceCode, buildApk, submitApk, sendEmail = pars
     
 
-    with open("emailPrefix.txt", "r") as f:
+    with open("emailPrefix.txt", "r", encoding='utf-8') as f:
         emailPrefixField = f.read()
 #     currentTime = time.strftime('%I:%M:%S %p',time.localtime(time.time()))
     fileName = None
